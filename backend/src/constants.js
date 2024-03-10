@@ -1,1 +1,1 @@
-export const DB_Name = "threadApp2024";
+export const DB_Name = "Thread_application";
