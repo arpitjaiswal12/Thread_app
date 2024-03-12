@@ -50,8 +50,8 @@ const userRegister = asyncHandler(async (req, res) => {
   //   const __filename = fileURLToPath(import.meta.url);
   //   const __dirname = path.dirname(__filename);
 
-  const file = req.files.avatar;
-  console.log("get file ", file);
+  // const file = req.files.avatar;
+  // console.log("get file ", file);
 
   //   let filepath =
   //     __dirname + "/files/" + Date.now() + `.${file.name.split(".")[1]}`;
@@ -63,8 +63,8 @@ const userRegister = asyncHandler(async (req, res) => {
 
   console.log("uploading to thread app : ");
 
-  const response = uploadOnCloudinary(file, "Thread_App");
-  console.log(response);
+  // const response = uploadOnCloudinary(file, "Thread_App");
+  // console.log(response);
 
   const user = await User.create({
     firstName,
@@ -72,7 +72,7 @@ const userRegister = asyncHandler(async (req, res) => {
     username,
     email,
     password,
-    avatar: "avatar file",
+    avatar,
   });
 
   const createdUser = await User.findById(user._id).select(
@@ -80,7 +80,7 @@ const userRegister = asyncHandler(async (req, res) => {
   );
 
   return res.json(
-    new ApiResponse(200, createdUser, "file uploaded successfully")
+    new ApiResponse(200, createdUser, "User registered successfully !!")
   );
 });
 
