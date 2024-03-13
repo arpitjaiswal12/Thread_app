@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth.jsx";
 import storeImageOnFirebase from "../firebase/storeImageOnFirebase.js";
 
-export default function Register() {
+export default function LogIn() {
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -32,7 +32,7 @@ export default function Register() {
     e.preventDefault();
     try {
       setLoading(true);
-      const res = await fetch("/api/v1/users/register", {
+      const res = await fetch("/api/v1/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,48 +54,10 @@ export default function Register() {
       setError(error.message);
     }
   };
-
-  //Image upload on firebase
-
-  const [uploading, setUploading] = useState(false);
-  const [imageUploadError, setImageUploadError] = useState(false);
-  const [files, setFiles] = useState([]);
-
-  const handleImageSubmit = (e) => {
-    e.preventDefault();
-    if (files.length > 0) {
-      setUploading(true); // file is started uploading
-      setImageUploadError(false);
-      const promises = [];
-
-      // promises.push(storeImage(files[0]));
-      promises.push(storeImageOnFirebase(files[0]));
-      Promise.all(promises)
-        .then((urls) => {
-          console.log(urls)
-          setFormData({
-            ...formData, // old form data + new image
-            avatar: urls[0],
-          });
-          // console.log("77. ",formData)
-          setImageUploadError(false); // no error
-          setUploading(false); // uploaded
-        })
-        .catch((err) => {
-          setImageUploadError("Image upload failed (2 mb max per image)");
-          setUploading(false);
-          console.log(err);
-        });
-    } else {
-      setImageUploadError("You need to upload your avatar !");
-      setUploading(false);
-    }
-    console.log(formData);
-  };
   
 
   return (
-    <div className="bg-gradient-to-r from-indigo-800 to-fuchsia-700 flex justify-center h-full ">
+    <div className="bg-gradient-to-r from-indigo-800 to-fuchsia-700 flex justify-center h-screen ">
       <section className="p-2">
         <div className="flex items-center justify-center border-2 border-black rounded-lg backdrop-blur-sm sm:px-6 sm:py-8 lg:px-8 ]">
           <div className="xl:mx-auto xl:w-full xl:max-w-sm 2xl:max-w-md">
@@ -116,49 +78,12 @@ export default function Register() {
                 title=""
                 className="font-medium text-black transition-all duration-200 hover:underline"
               >
-                Sign In
+                LogIn
               </a>
             </p>
             <form onSubmit={handleSubmit} className="mt-8">
               <div className="space-y-5">
-                <div className=" flex justify-between gap-2">
-                  <div className="">
-                    <label
-                      htmlFor="name"
-                      className="text-base font-bold text-gray-900"
-                    >
-                      {" "}
-                      First Name{" "}
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 text-white font-medium"
-                        type="text"
-                        placeholder="First Name"
-                        id="firstName"
-                        onChange={handleChange}
-                      ></input>
-                    </div>
-                  </div>
-                  <div className="">
-                    <label
-                      htmlFor="name"
-                      className="text-base font-bold text-gray-900"
-                    >
-                      {" "}
-                      Last Name{" "}
-                    </label>
-                    <div className="mt-2">
-                      <input
-                        className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 text-white font-medium"
-                        type="text"
-                        placeholder="Last Name"
-                        id="lastName"
-                        onChange={handleChange}
-                      ></input>
-                    </div>
-                  </div>
-                </div>
+                
                 <div className="">
                   <div>
                     <label
@@ -166,67 +91,20 @@ export default function Register() {
                       className="text-base font-bold text-gray-900"
                     >
                       {" "}
-                      UserName{" "}
+                      UserName Or Email
                     </label>
                     <div className="mt-2">
                       <input
                         className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 text-white font-medium"
                         type="text"
-                        placeholder="Username"
+                        placeholder="username, or email"
                         id="username"
                         onChange={handleChange}
                       ></input>
                     </div>
                   </div>
                 </div>
-                <div className="flex ">
-                  <div>
-                    <label
-                      htmlFor="avatar"
-                      className="text-base font-bold text-gray-900"
-                    >
-                      {" "}
-                      Avatar{" "}
-                    </label>
-                    <div className="mt-2 flex gap-2">
-                      <input
-                        className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 "
-                        type="file"
-                        placeholder="avatar"
-                        accept="image/*"
-                        id="avatar"
-                        onChange={(e) => setFiles(e.target.files)}
-                      />
-                      <button
-                        disabled={uploading}
-                        onClick={handleImageSubmit}
-                        type="button"
-                        id="avatar"
-                        className=" px-2 text-gary-700 border border-white rounded uppercase hover:shadow-2xl disabled:opacity-80"
-                      >
-                        {uploading ? "Uploading..." : "Upload"}{" "}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="text-base font-bold text-gray-900"
-                  >
-                    {" "}
-                    Email Address{" "}
-                  </label>
-                  <div className="mt-2">
-                    <input
-                      className="flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-1 focus:ring-gray-400 focus:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50 text-white font-medium"
-                      type="email"
-                      placeholder="email"
-                      id="email"
-                      onChange={handleChange}
-                    ></input>
-                  </div>
-                </div>
+            
                 <div>
                   <div className="flex items-center justify-between">
                     <label
@@ -252,7 +130,7 @@ export default function Register() {
                     disabled={loading}
                     className="inline-flex w-full items-center justify-center rounded-md bg-black px-3.5 py-2.5 font-semibold leading-7 text-white hover:bg-black/80"
                   >
-                    {loading ? "Loading..." : "Create Account"}{" "}
+                    {loading ? "Loading..." : "Get started"}{" "}
                     <ArrowRight className="ml-2" size={16} />
                   </button>
                 </div>
@@ -306,7 +184,7 @@ export default function Register() {
                     </g>
                   </svg>
                 </span>
-                Sign up with GitHub
+                Continue with GitHub
               </button>
             </div>
           </div>
