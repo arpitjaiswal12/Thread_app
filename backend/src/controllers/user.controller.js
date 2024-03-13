@@ -134,4 +134,82 @@ const userLogin = asyncHandler(async (req, res) => {
     );
 });
 
-export  { userRegister, userLogin };
+export const Google = async (req, res, next) => {
+  try {
+    const userExist = await User.findOne({ email: req.body.email });
+    if (userExist) {
+      const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+        userExist._id
+      );
+      const loggedInUser = await User.findById(userExist._id).select(
+        "-password -refreshToken"
+      );
+      const options = {
+        httpOnly: true,
+        secure: true,
+      };
+      return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+          new ApiResponse(
+            200,
+            {
+              // user: accessToken,
+              refreshToken,
+              loggedInUser,
+            },
+            "user logged In sucessfully!!"
+          )
+        );
+    } else {
+      // here user is not exist
+      const generatedPassword =
+        Math.random().toString(36).slice(-8) +
+        Math.random().toString(36).slice(-8); // creating the random 16 digit password
+      const newUser = await User.create({
+        firstName: req.body.name,
+        username:
+          req.body.name.split(" ").join("").toLowerCase() +
+          Math.random().toString(36).slice(-4),
+        email: req.body.email,
+        password: generatedPassword,
+        avatar: req.body.photo,
+      });
+      console.log(newUser);
+      const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
+        newUser._id
+      );
+      const loggedInUser = await User.findById(userExist._id).select(
+        "-password -refreshToken"
+      );
+      const options = {
+        httpOnly: true,
+        secure: true,
+      };
+      return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+          new ApiResponse(
+            200,
+            {
+              // user: accessToken,
+              refreshToken,
+              loggedInUser,
+            },
+            "user logged In sucessfully!!"
+          )
+        );
+    }
+  } catch (error) {
+    console.log("error while  login with google ",error)
+    
+  }
+};
+
+
+
+export { userRegister, userLogin };
