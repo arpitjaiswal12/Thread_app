@@ -24,6 +24,9 @@ app.use(cookieParser());
 cloudinaryConnect();
 
 import userRouter from "./routes/user.routes.js"
+import threadRouter from "./routes/thread.routes.js"
+
 app.use("/api/v1/users",userRouter)
+app.use("/api/v1/thread",threadRouter)
 
 export { app };
