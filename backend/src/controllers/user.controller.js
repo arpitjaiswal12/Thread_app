@@ -85,37 +85,47 @@ const userRegister = asyncHandler(async (req, res) => {
 });
 
 const userLogin = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { username, email, password } = req.body;
+  console.log("89", email);
+
+  console.log("91", req.body);
 
   if (!(username || email)) {
     throw new ApiError(400, "username or email is required !!");
   }
 
-  const userExist = await User.findOne({
-    $or: [{ email }, { username }],
+  //instance of object
+  const user = await User.findOne({
+    email:email, //array ke andar object pass kr sakte ho
   });
-  if (!userExist) {
-    throw new ApiError(400, "Please register to continue !");
+
+  console.log(user)
+
+  if (!user) {
+    throw new ApiError(404, "User does not exist");
   }
 
-  const isPasswordValid = await userExist.isPasswordCorrect(password);
+  console.log(user)
 
+  const isPasswordValid = await user.isPasswordCorrect(password);
   if (!isPasswordValid) {
     throw new ApiError(401, "Invalid Credentials");
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    userExist._id
+    user._id
   );
 
-  const loggedInUser = await User.findById(userExist._id).select(
+  const loggedInUser = await User.findById(user._id).select(
     "-password -refreshToken"
   );
 
+  // send cookies - while sending cookies we need to design options
+  // cookies can be modified by default from frontend
   const options = {
     httpOnly: true,
     secure: true,
-  };
+  }; //this cookies can only modified from server only
 
   return res
     .status(200)
@@ -205,11 +215,8 @@ export const Google = async (req, res, next) => {
         );
     }
   } catch (error) {
-    console.log("error while  login with google ",error)
-    
+    console.log("error while  login with google ", error);
   }
 };
-
-
 
 export { userRegister, userLogin };
